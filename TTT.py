@@ -1,12 +1,21 @@
 from os import system
 from random import choice
 
-grid = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
-pos = list(range(1, 10))
-cmpmarks, usrmarks = [], []
-win = [{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {1, 4, 7}, {2, 5, 8}, {3, 6, 9}, {1, 5, 9}, {3, 5, 7}]
+l = [' '] * 9  # game board
+pos = list(range(1, 10))  # available positions on game board
+pc_marks, usr_marks = set(), set()
+winning_combinations = [{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {1, 4, 7}, {2, 5, 8}, {3, 6, 9}, {1, 5, 9}, {3, 5, 7}]
 
-mark = input('Enter your mark: ')
+usr_mark = input('Choose your mark (o or x): ')
+
+if usr_mark == 'x':
+    pc_mark = 'o'
+elif usr_mark == 'o':
+    pc_mark = 'x'
+else:
+    print("Invalid!")
+    exit
+
 print(
     'Remember your choices:\n'
     ' 1 | 2 | 3 \n'
@@ -15,52 +24,64 @@ print(
 )
 
 
-def update():
-        print(
-        f'{grid[0]} | {grid[1]} | {grid[2]} \n'
-        f'{grid[3]} | {grid[4]} | {grid[5]} \n'
-        f'{grid[6]} | {grid[7]} | {grid[8]}'
+def print_game_board():
+    system('cls')
+
+    print(
+        f'{l[0]} | {l[1]} | {l[2]} \n'
+        f'{l[3]} | {l[4]} | {l[5]} \n'
+        f'{l[6]} | {l[7]} | {l[8]}'
     )
 
-def usr():
-    a = int(input('Enter move: '))
-    try:
-        pos.remove(a)
-    except:
-        a = int(input('Enter valid move! '))
-        pos.remove(a)
-    system('cls')
-    grid[a - 1] = mark
-    usrmarks.append(a)
+
+def usr_turn():
+    x = int(input('Enter move: '))
+    if x in pos:
+        pos.remove(x)
+    else:
+        print('Invalid move!')
+    l[x - 1] = usr_mark
+    usr_marks.add(x)
 
 
-def cmp():
-    if k != 4:
-        if mark in ['o','O','0']:
-            mark2 = 'x'
-        else:
-            mark2 = 'o'
-        b = choice(pos)
-        grid[b - 1] = mark2
-        pos.remove(b)
-        cmpmarks.append(b)
+def pc_turn():
+    x = choice(pos)  # random choice
+    l[x - 1] = pc_mark
+    pos.remove(x)
+    pc_marks.add(x)
 
 
-def check():
-    for i in win:
-        if i <= set(usrmarks):
+def usr_wins():
+    for i in winning_combinations:
+        if i.issubset(usr_marks):
             print('You WIN :)')
             return True
-        if i <= set(cmpmarks):
+
+    return False
+
+
+def pc_wins():
+    for i in winning_combinations:
+        if i.issubset(pc_marks):
             print('Computer WINS :[')
             return True
 
+    return False
 
-for k in range(5):
-    usr()
-    cmp()
-    update()
-    if check():
+
+# Main game loop
+for i in range(1, 6):
+    usr_turn()
+    print_game_board()
+    if usr_wins():
+        break
+
+    if i == 5:
+        break  # only 9 places on game board
+
+    pc_turn()
+    print_game_board()
+    if pc_wins():
         break
 
 print('Game Over.')
